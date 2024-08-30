@@ -1,0 +1,155 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>overlay</title><meta name="generator" content="MATLAB 9.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2024-04-18"><meta name="DC.source" content="overlay.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Load LiDAR data for flight line 1</span>
+data_flight1 = readmatrix(<span class="string">'flightline1.csv'</span>); <span class="comment">% Assuming CSV format with x, y coordinates</span>
+x_flight1 = data_flight1(:, 1);
+y_flight1 = data_flight1(:, 2);
+
+<span class="comment">% Load LiDAR data for flight line 2</span>
+data_flight2 = readmatrix(<span class="string">'flightline2.csv'</span>); <span class="comment">% Assuming CSV format with x, y coordinates</span>
+x_flight2 = data_flight2(:, 1);
+y_flight2 = data_flight2(:, 2);
+
+<span class="comment">% Define the overlap area</span>
+x_min_overlap = max(min(x_flight1), min(x_flight2));
+x_max_overlap = min(max(x_flight1), max(x_flight2));
+y_min_overlap = max(min(y_flight1), min(y_flight2));
+y_max_overlap = min(max(y_flight1), max(y_flight2));
+
+<span class="comment">% Find unique points within the overlap area for each flight line</span>
+overlap_indices_flight1 = find(x_flight1 &gt;= x_min_overlap &amp; x_flight1 &lt;= x_max_overlap <span class="keyword">...</span>
+    &amp; y_flight1 &gt;= y_min_overlap &amp; y_flight1 &lt;= y_max_overlap);
+overlap_indices_flight2 = find(x_flight2 &gt;= x_min_overlap &amp; x_flight2 &lt;= x_max_overlap <span class="keyword">...</span>
+    &amp; y_flight2 &gt;= y_min_overlap &amp; y_flight2 &lt;= y_max_overlap);
+
+<span class="comment">% Count unique overlapping points</span>
+unique_overlap_points_flight1 = unique([x_flight1(overlap_indices_flight1), y_flight1(overlap_indices_flight1)], <span class="string">'rows'</span>);
+unique_overlap_points_flight2 = unique([x_flight2(overlap_indices_flight2), y_flight2(overlap_indices_flight2)], <span class="string">'rows'</span>);
+
+<span class="comment">% Calculate percentage overlap</span>
+percentage_overlap_flight1 = (size(unique_overlap_points_flight1, 1) / size(x_flight1, 1)) * 100;
+percentage_overlap_flight2 = (size(unique_overlap_points_flight2, 1) / size(x_flight2, 1)) * 100;
+
+<span class="comment">% Calculate maximum, minimum, and average overlap in terms of percentage</span>
+max_overlap_percentage = max(percentage_overlap_flight1, percentage_overlap_flight2);
+min_overlap_percentage = min(percentage_overlap_flight1, percentage_overlap_flight2);
+average_overlap_percentage = (percentage_overlap_flight1 + percentage_overlap_flight2) / 2;
+
+<span class="comment">% Display results</span>
+disp([<span class="string">'Maximum Overlap: '</span>, num2str(100-max_overlap_percentage), <span class="string">'%'</span>]);
+disp([<span class="string">'Minimum Overlap: '</span>, num2str(100-min_overlap_percentage), <span class="string">'%'</span>]);
+disp([<span class="string">'Average Overlap: '</span>, num2str(100-average_overlap_percentage), <span class="string">'%'</span>]);
+</pre><pre class="codeoutput">Maximum Overlap: 17.5903%
+Minimum Overlap: 19.2237%
+Average Overlap: 18.407%
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Load LiDAR data for flight line 1
+data_flight1 = readmatrix('flightline1.csv'); % Assuming CSV format with x, y coordinates
+x_flight1 = data_flight1(:, 1);
+y_flight1 = data_flight1(:, 2);
+
+% Load LiDAR data for flight line 2
+data_flight2 = readmatrix('flightline2.csv'); % Assuming CSV format with x, y coordinates
+x_flight2 = data_flight2(:, 1);
+y_flight2 = data_flight2(:, 2);
+
+% Define the overlap area
+x_min_overlap = max(min(x_flight1), min(x_flight2));
+x_max_overlap = min(max(x_flight1), max(x_flight2));
+y_min_overlap = max(min(y_flight1), min(y_flight2));
+y_max_overlap = min(max(y_flight1), max(y_flight2));
+
+% Find unique points within the overlap area for each flight line
+overlap_indices_flight1 = find(x_flight1 >= x_min_overlap & x_flight1 <= x_max_overlap ...
+    & y_flight1 >= y_min_overlap & y_flight1 <= y_max_overlap);
+overlap_indices_flight2 = find(x_flight2 >= x_min_overlap & x_flight2 <= x_max_overlap ...
+    & y_flight2 >= y_min_overlap & y_flight2 <= y_max_overlap);
+
+% Count unique overlapping points
+unique_overlap_points_flight1 = unique([x_flight1(overlap_indices_flight1), y_flight1(overlap_indices_flight1)], 'rows');
+unique_overlap_points_flight2 = unique([x_flight2(overlap_indices_flight2), y_flight2(overlap_indices_flight2)], 'rows');
+
+% Calculate percentage overlap
+percentage_overlap_flight1 = (size(unique_overlap_points_flight1, 1) / size(x_flight1, 1)) * 100;
+percentage_overlap_flight2 = (size(unique_overlap_points_flight2, 1) / size(x_flight2, 1)) * 100;
+
+% Calculate maximum, minimum, and average overlap in terms of percentage
+max_overlap_percentage = max(percentage_overlap_flight1, percentage_overlap_flight2);
+min_overlap_percentage = min(percentage_overlap_flight1, percentage_overlap_flight2);
+average_overlap_percentage = (percentage_overlap_flight1 + percentage_overlap_flight2) / 2;
+
+% Display results
+disp(['Maximum Overlap: ', num2str(100-max_overlap_percentage), '%']);
+disp(['Minimum Overlap: ', num2str(100-min_overlap_percentage), '%']);
+disp(['Average Overlap: ', num2str(100-average_overlap_percentage), '%']);
+
+##### SOURCE END #####
+--></body></html>

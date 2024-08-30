@@ -1,0 +1,289 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>uniformity</title><meta name="generator" content="MATLAB 9.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2024-04-18"><meta name="DC.source" content="uniformity.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Flight line 1</a></li><li><a href="#2">Flight line 2</a></li></ul></div><h2 id="1">Flight line 1</h2><p>Load the CSV file</p><pre class="codeinput">data = csvread(<span class="string">'swath1.csv'</span>); <span class="comment">% Assuming the first row contains headers</span>
+
+<span class="comment">% Extract x, y coordinates, and z values</span>
+x = data(:, 1);
+y = data(:, 2);
+z = data(:, 3);
+
+<span class="comment">% Define NPS and grid size</span>
+NPS = 1.4696;
+grid_size = 2 * NPS;
+
+<span class="comment">% Define the grid</span>
+x_min = min(x);
+x_max = max(x);
+y_min = min(y);
+y_max = max(y);
+x_grid = x_min : grid_size : x_max;
+y_grid = y_min : grid_size : y_max;
+
+<span class="comment">% Count the number of points falling within each grid cell</span>
+num_points_in_grid = histcounts2(x, y, x_grid, y_grid);
+
+<span class="comment">% Calculate the percentage of grid cells with at least one LiDAR point</span>
+total_grid_cells = numel(x_grid) * numel(y_grid);
+num_filled_grid_cells = sum(num_points_in_grid(:) &gt; 0);
+percentage_filled = (num_filled_grid_cells / total_grid_cells) * 100;
+
+<span class="comment">% Determine if the spatial distribution is uniform or non-uniform</span>
+<span class="keyword">if</span> percentage_filled &gt;= 90
+    disp(<span class="string">'Spatial distribution for flight line 1 is uniform.'</span>);
+<span class="keyword">else</span>
+    disp(<span class="string">'Spatial distribution for flight line 1 is non-uniform.'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% Plot the points</span>
+scatter(x, y, 10, <span class="string">'b'</span>, <span class="string">'filled'</span>);
+hold <span class="string">on</span>;
+
+<span class="comment">% Plot the grid lines</span>
+<span class="keyword">for</span> i = 1:numel(x_grid)
+    line([x_grid(i), x_grid(i)], [y_min, y_max], <span class="string">'Color'</span>, <span class="string">'r'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>);
+<span class="keyword">end</span>
+<span class="keyword">for</span> j = 1:numel(y_grid)
+    line([x_min, x_max], [y_grid(j), y_grid(j)], <span class="string">'Color'</span>, <span class="string">'r'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% Set plot title and labels</span>
+title(<span class="string">'Spatial Distribution of LiDAR Points for flight line 1'</span>);
+xlabel(<span class="string">'X Coordinate'</span>);
+ylabel(<span class="string">'Y Coordinate'</span>);
+legend(<span class="string">'LiDAR Points'</span>, <span class="string">'Grid Lines'</span>);
+</pre><pre class="codeoutput">Spatial distribution for flight line 1 is uniform.
+</pre><img vspace="5" hspace="5" src="uniformity_01.png" alt=""> <h2 id="2">Flight line 2</h2><pre class="codeinput"><span class="comment">% Load the CSV file</span>
+data = csvread(<span class="string">'swath2.csv'</span>); <span class="comment">% Assuming the first row contains headers</span>
+
+<span class="comment">% Extract x, y coordinates, and z values</span>
+x = data(:, 1);
+y = data(:, 2);
+z = data(:, 3);
+
+<span class="comment">% Define NPS and grid size</span>
+NPS = 1.4696;
+grid_size = 2 * NPS;
+
+<span class="comment">% Define the grid</span>
+x_min = min(x);
+x_max = max(x);
+y_min = min(y);
+y_max = max(y);
+x_grid = x_min : grid_size : x_max;
+y_grid = y_min : grid_size : y_max;
+
+<span class="comment">% Count the number of points falling within each grid cell</span>
+num_points_in_grid = histcounts2(x, y, x_grid, y_grid);
+
+<span class="comment">% Calculate the percentage of grid cells with at least one LiDAR point</span>
+total_grid_cells = numel(x_grid) * numel(y_grid);
+num_filled_grid_cells = sum(num_points_in_grid(:) &gt; 0);
+percentage_filled = (num_filled_grid_cells / total_grid_cells) * 100;
+
+<span class="comment">% Determine if the spatial distribution is uniform or non-uniform</span>
+<span class="keyword">if</span> percentage_filled &gt;= 90
+    disp(<span class="string">'Spatial distribution for flight line 2 is uniform.'</span>);
+<span class="keyword">else</span>
+    disp(<span class="string">'Spatial distribution for flight line 2 is non-uniform.'</span>);
+<span class="keyword">end</span>
+
+figure;
+<span class="comment">% Plot the points</span>
+scatter(x, y, 10, <span class="string">'b'</span>, <span class="string">'filled'</span>);
+hold <span class="string">on</span>;
+
+<span class="comment">% Plot the grid lines</span>
+<span class="keyword">for</span> i = 1:numel(x_grid)
+    line([x_grid(i), x_grid(i)], [y_min, y_max], <span class="string">'Color'</span>, <span class="string">'r'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>);
+<span class="keyword">end</span>
+<span class="keyword">for</span> j = 1:numel(y_grid)
+    line([x_min, x_max], [y_grid(j), y_grid(j)], <span class="string">'Color'</span>, <span class="string">'r'</span>, <span class="string">'LineStyle'</span>, <span class="string">'--'</span>);
+<span class="keyword">end</span>
+
+<span class="comment">% Set plot title and labels</span>
+title(<span class="string">'Spatial Distribution of LiDAR Points for flight line 2'</span>);
+xlabel(<span class="string">'X Coordinate'</span>);
+ylabel(<span class="string">'Y Coordinate'</span>);
+legend(<span class="string">'LiDAR Points'</span>, <span class="string">'Grid Lines'</span>);
+</pre><pre class="codeoutput">Spatial distribution for flight line 2 is uniform.
+</pre><img vspace="5" hspace="5" src="uniformity_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Flight line 1
+% Load the CSV file
+data = csvread('swath1.csv'); % Assuming the first row contains headers
+
+% Extract x, y coordinates, and z values
+x = data(:, 1);
+y = data(:, 2);
+z = data(:, 3);
+
+% Define NPS and grid size
+NPS = 1.4696;
+grid_size = 2 * NPS;
+
+% Define the grid
+x_min = min(x);
+x_max = max(x);
+y_min = min(y);
+y_max = max(y);
+x_grid = x_min : grid_size : x_max;
+y_grid = y_min : grid_size : y_max;
+
+% Count the number of points falling within each grid cell
+num_points_in_grid = histcounts2(x, y, x_grid, y_grid);
+
+% Calculate the percentage of grid cells with at least one LiDAR point
+total_grid_cells = numel(x_grid) * numel(y_grid);
+num_filled_grid_cells = sum(num_points_in_grid(:) > 0);
+percentage_filled = (num_filled_grid_cells / total_grid_cells) * 100;
+
+% Determine if the spatial distribution is uniform or non-uniform
+if percentage_filled >= 90
+    disp('Spatial distribution for flight line 1 is uniform.');
+else
+    disp('Spatial distribution for flight line 1 is non-uniform.');
+end
+
+% Plot the points
+scatter(x, y, 10, 'b', 'filled');
+hold on;
+
+% Plot the grid lines
+for i = 1:numel(x_grid)
+    line([x_grid(i), x_grid(i)], [y_min, y_max], 'Color', 'r', 'LineStyle', 'REPLACE_WITH_DASH_DASH');
+end
+for j = 1:numel(y_grid)
+    line([x_min, x_max], [y_grid(j), y_grid(j)], 'Color', 'r', 'LineStyle', 'REPLACE_WITH_DASH_DASH');
+end
+
+% Set plot title and labels
+title('Spatial Distribution of LiDAR Points for flight line 1');
+xlabel('X Coordinate');
+ylabel('Y Coordinate');
+legend('LiDAR Points', 'Grid Lines');
+
+%% Flight line 2
+
+% Load the CSV file
+data = csvread('swath2.csv'); % Assuming the first row contains headers
+
+% Extract x, y coordinates, and z values
+x = data(:, 1);
+y = data(:, 2);
+z = data(:, 3);
+
+% Define NPS and grid size
+NPS = 1.4696;
+grid_size = 2 * NPS;
+
+% Define the grid
+x_min = min(x);
+x_max = max(x);
+y_min = min(y);
+y_max = max(y);
+x_grid = x_min : grid_size : x_max;
+y_grid = y_min : grid_size : y_max;
+
+% Count the number of points falling within each grid cell
+num_points_in_grid = histcounts2(x, y, x_grid, y_grid);
+
+% Calculate the percentage of grid cells with at least one LiDAR point
+total_grid_cells = numel(x_grid) * numel(y_grid);
+num_filled_grid_cells = sum(num_points_in_grid(:) > 0);
+percentage_filled = (num_filled_grid_cells / total_grid_cells) * 100;
+
+% Determine if the spatial distribution is uniform or non-uniform
+if percentage_filled >= 90
+    disp('Spatial distribution for flight line 2 is uniform.');
+else
+    disp('Spatial distribution for flight line 2 is non-uniform.');
+end
+
+figure;
+% Plot the points
+scatter(x, y, 10, 'b', 'filled');
+hold on;
+
+% Plot the grid lines
+for i = 1:numel(x_grid)
+    line([x_grid(i), x_grid(i)], [y_min, y_max], 'Color', 'r', 'LineStyle', 'REPLACE_WITH_DASH_DASH');
+end
+for j = 1:numel(y_grid)
+    line([x_min, x_max], [y_grid(j), y_grid(j)], 'Color', 'r', 'LineStyle', 'REPLACE_WITH_DASH_DASH');
+end
+
+% Set plot title and labels
+title('Spatial Distribution of LiDAR Points for flight line 2');
+xlabel('X Coordinate');
+ylabel('Y Coordinate');
+legend('LiDAR Points', 'Grid Lines');
+
+##### SOURCE END #####
+--></body></html>
